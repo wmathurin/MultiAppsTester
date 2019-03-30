@@ -31,6 +31,10 @@ import UIKit
 
 class AdditionalActionsViewController: UITableViewController {
     
+    var onSyncDownSelected: (() -> ())?
+    var onSyncUpSelected: (() -> ())?
+    var onSyncManagerStopSelected: (() -> ())?
+    var onSyncManagerResumeSelected: (() -> ())?
     var onLogoutSelected: (() -> ())?
     var onSwitchUserSelected : (() -> ())?
     var onDBInspectorSelected : (() -> ())?
@@ -53,7 +57,7 @@ class AdditionalActionsViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 4
+        return 8
     }
 
     
@@ -64,12 +68,20 @@ class AdditionalActionsViewController: UITableViewController {
         cell.textLabel?.textColor = UIColor.labelText
         
         if indexPath.row == 0 {
-            cell.textLabel?.text = "Logout"
+            cell.textLabel?.text = "Sync DOWN"
         } else if indexPath.row == 1 {
-            cell.textLabel?.text = "Switch User"
+            cell.textLabel?.text = "Sync UP"
         } else if indexPath.row == 2 {
-            cell.textLabel?.text = "Inspect DB"
+            cell.textLabel?.text = "STOP Sync Manager"
         } else if indexPath.row == 3 {
+            cell.textLabel?.text = "RESUME Sync Manager"
+        } else if indexPath.row == 4 {
+            cell.textLabel?.text = "Logout"
+        } else if indexPath.row == 5 {
+            cell.textLabel?.text = "Switch User"
+        } else if indexPath.row == 6 {
+            cell.textLabel?.text = "Inspect DB"
+        } else if indexPath.row == 7 {
             cell.textLabel?.text = "Cancel"
         }
 
@@ -78,12 +90,20 @@ class AdditionalActionsViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.row == 0 {
-            self.onLogoutSelected?()
+            self.onSyncDownSelected?()
         } else if indexPath.row == 1 {
-            self.onSwitchUserSelected?()
+            self.onSyncUpSelected?()
         } else if indexPath.row == 2 {
+            self.onSyncManagerStopSelected?()
+        } else if indexPath.row == 3 {
+            self.onSyncManagerResumeSelected?()
+        } else if indexPath.row == 4 {
+            self.onLogoutSelected?()
+        } else if indexPath.row == 5 {
+            self.onSwitchUserSelected?()
+        } else if indexPath.row == 6 {
             self.onDBInspectorSelected?()
-        }else if indexPath.row  == 3 {
+        }else if indexPath.row  == 7 {
             self.onCancelSelected?()
         }
     }

@@ -161,7 +161,7 @@ class ContactDetailViewController: UniversalViewController {
                                                    self.emailField.heightAnchor.constraint(equalToConstant: textFieldHeight),
                                                    self.departmentField.heightAnchor.constraint(equalToConstant: textFieldHeight)])
         
-        /*
+        
         self.regularConstraints.append(contentsOf: [firstNameLabel.leftAnchor.constraint(equalTo: scrollView.leftAnchor, constant: regInset),
                                                     firstNameLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: regInset),
                                                     self.firstNameField.leftAnchor.constraint(equalTo: firstNameLabel.leftAnchor),
@@ -244,7 +244,6 @@ class ContactDetailViewController: UniversalViewController {
                                                     deleteButton.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant:-compInset)
             ])
  
- */
         
         if self.isNewContact {
             self.beginEditingFields()

@@ -332,7 +332,25 @@ class SObjectDataManager {
         return value ?? false
     }
  
-    func refreshRemoteData(_ completion: @escaping ([SObjectData]) -> Void,onFailure: @escaping (NSError?, SyncState) -> Void  ) throws -> Void {
+    func runSync(_ syncName:String, completion: @escaping (SyncState) -> Void) -> Void {
+        self.syncMgr.reSync(named: syncName) { [weak self] (syncState) in
+            if (syncState.status == .done) {
+                self?.refreshLocalData()
+            }
+            completion(syncState)
+        }
+    }
+    
+    func refreshLocalData() -> Void {
+        do {
+            let objects = try queryLocalData()
+            populateDataRows(objects)
+        } catch {
+            SmartSyncLogger.e(SObjectDataManager.self, message: "Refresh local data failed \(error)" )
+        }
+    }
+    
+    func refreshRemoteData(_ completion: @escaping ([SObjectData]) -> Void, onFailure: @escaping (NSError?, SyncState) -> Void  ) throws -> Void {
        
         self.syncMgr.reSync(named: kSyncDownName) { [weak self] (syncState) in
             switch (syncState.status) {

@@ -93,15 +93,41 @@ class RootViewController: UniversalViewController {
 
        
         
-       
-        
-        syncUpDown()
+
+               
+        sObjectsDataManager.refreshLocalData()
+        refreshList()
     }
 
     @objc func showAdditionalActions(_ sender: UIBarButtonItem) {
         let table = AdditionalActionsViewController()
         table.modalPresentationStyle = .popover
         table.preferredContentSize = CGSize(width: 200.0, height: 132.0)
+        
+        table.onSyncDownSelected = {
+            table.dismiss(animated: true, completion: {
+                self.runSync("syncDownContacts")
+            })
+        }
+        
+        table.onSyncUpSelected = {
+            table.dismiss(animated: true, completion: {
+                self.runSync("syncUpContacts")
+            })
+        }
+        
+        table.onSyncManagerStopSelected = {
+            table.dismiss(animated: true, completion: {
+                self.syncManagerStop()
+            })
+        }
+        
+        table.onSyncManagerResumeSelected = {
+            table.dismiss(animated: true, completion: {
+                self.syncManagerResume()
+            })
+        }
+        
         table.onLogoutSelected = {
             table.dismiss(animated: true, completion: {
                 self.showLogoutActionSheet()
@@ -137,6 +163,33 @@ class RootViewController: UniversalViewController {
     
     @objc func didPressSyncUpDown() {
         syncUpDown()
+    }
+    
+    func runSync(_ syncName:String) {
+        let alert = self.showAlert("Running \(syncName)", message: "")
+        sObjectsDataManager.runSync(syncName, completion:{ [weak self] (syncState) in
+            DispatchQueue.main.async {
+                alert.message = (alert.message ?? "") + "\n" + (self?.infoForSyncState(syncState) ?? "")
+                if (syncState.status == .done) {
+                    alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { [weak self] (action: UIAlertAction!) in
+                        alert.dismiss(animated: true, completion: nil)
+                        self?.refreshList()
+                    }))
+                }
+            }
+        })
+    }
+    
+    func infoForSyncState(_ syncState:SyncState) -> String {
+        return "\(syncState.progress)% \(SyncState.syncStatus(toString:syncState.status)) totalSize:\(syncState.totalSize) maxTs:\(syncState.maxTimeStamp)"
+    }
+    
+    func syncManagerStop() {
+        // TBD
+    }
+    
+    func syncManagerResume() {
+        // TBD
     }
     
     func syncUpDown(){

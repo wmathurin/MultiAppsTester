@@ -106,13 +106,13 @@ class RootViewController: UniversalViewController {
         
         table.onSyncDownSelected = {
             table.dismiss(animated: true, completion: {
-                self.syncDown()
+                self.runSync("syncDownContacts")
             })
         }
         
         table.onSyncUpSelected = {
             table.dismiss(animated: true, completion: {
-                self.syncUp()
+                self.runSync("syncUpContacts")
             })
         }
         
@@ -165,31 +165,23 @@ class RootViewController: UniversalViewController {
         syncUpDown()
     }
     
-    func syncDown() {
-        let alert = self.showAlert("Syncing DOWN", message: "Starting")
-        sObjectsDataManager.syncDown({ [weak self] (syncState) in
+    func runSync(_ syncName:String) {
+        let alert = self.showAlert("Running \(syncName)", message: "")
+        sObjectsDataManager.runSync(syncName, completion:{ [weak self] (syncState) in
             DispatchQueue.main.async {
-                alert.message = SFJsonUtils.jsonRepresentation(syncState.asDict())
+                alert.message = (alert.message ?? "") + "\n" + (self?.infoForSyncState(syncState) ?? "")
                 if (syncState.status == .done) {
-                    alert.dismiss(animated: true, completion: nil)
-                    self?.refreshList()
+                    alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { [weak self] (action: UIAlertAction!) in
+                        alert.dismiss(animated: true, completion: nil)
+                        self?.refreshList()
+                    }))
                 }
             }
         })
     }
     
-    func syncUp() {
-        let alert = self.showAlert("Syncing UP", message: "Starting")
-        sObjectsDataManager.syncUp({ [weak self] (syncState) in
-            DispatchQueue.main.async {
-                alert.message = SFJsonUtils.jsonRepresentation(syncState.asDict())
-                if (syncState.status == .done) {
-                    alert.dismiss(animated: true, completion: nil)
-                    self?.refreshList()
-                }
-            }
-        })
-
+    func infoForSyncState(_ syncState:SyncState) -> String {
+        return "\(syncState.progress)% \(SyncState.syncStatus(toString:syncState.status)) totalSize:\(syncState.totalSize) maxTs:\(syncState.maxTimeStamp)"
     }
     
     func syncManagerStop() {

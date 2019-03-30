@@ -103,6 +103,31 @@ class RootViewController: UniversalViewController {
         let table = AdditionalActionsViewController()
         table.modalPresentationStyle = .popover
         table.preferredContentSize = CGSize(width: 200.0, height: 132.0)
+        
+        table.onSyncDownSelected = {
+            table.dismiss(animated: true, completion: {
+                self.syncDown()
+            })
+        }
+        
+        table.onSyncUpSelected = {
+            table.dismiss(animated: true, completion: {
+                self.syncUp()
+            })
+        }
+        
+        table.onSyncManagerStopSelected = {
+            table.dismiss(animated: true, completion: {
+                self.syncManagerStop()
+            })
+        }
+        
+        table.onSyncManagerResumeSelected = {
+            table.dismiss(animated: true, completion: {
+                self.syncManagerResume()
+            })
+        }
+        
         table.onLogoutSelected = {
             table.dismiss(animated: true, completion: {
                 self.showLogoutActionSheet()
@@ -138,6 +163,41 @@ class RootViewController: UniversalViewController {
     
     @objc func didPressSyncUpDown() {
         syncUpDown()
+    }
+    
+    func syncDown() {
+        let alert = self.showAlert("Syncing DOWN", message: "Starting")
+        sObjectsDataManager.syncDown({ [weak self] (syncState) in
+            DispatchQueue.main.async {
+                alert.message = SFJsonUtils.jsonRepresentation(syncState.asDict())
+                if (syncState.status == .done) {
+                    alert.dismiss(animated: true, completion: nil)
+                    self?.refreshList()
+                }
+            }
+        })
+    }
+    
+    func syncUp() {
+        let alert = self.showAlert("Syncing UP", message: "Starting")
+        sObjectsDataManager.syncUp({ [weak self] (syncState) in
+            DispatchQueue.main.async {
+                alert.message = SFJsonUtils.jsonRepresentation(syncState.asDict())
+                if (syncState.status == .done) {
+                    alert.dismiss(animated: true, completion: nil)
+                    self?.refreshList()
+                }
+            }
+        })
+
+    }
+    
+    func syncManagerStop() {
+        // TBD
+    }
+    
+    func syncManagerResume() {
+        // TBD
     }
     
     func syncUpDown(){

@@ -31,12 +31,29 @@ import UIKit
 
 extension UIColor {
     
-    class var appDarkBlue:UIColor {
+    class var appNavBarTint:UIColor {
+
         get {
-            return UIColor(displayP3Red: 20.0/255.0, green: 50.0/255.0, blue: 92.0/255.0, alpha: 1.0)
+            if Constants.AppName.hasSuffix("1") {
+                return appLightBlue
+            } else {
+                return appLightRed
+            }
+        }
+    }
+
+    class var appLightBlue:UIColor {
+        get {
+            return UIColor(displayP3Red: 0.0/255.0, green: 0.0/255.0, blue: 255.0/255.0, alpha: 1.0)
         }
     }
     
+    class var appLightRed:UIColor {
+        get {
+            return UIColor(displayP3Red: 255.0/255.0, green: 0.0/255.0, blue: 0.0/255.0, alpha: 1.0)
+        }
+    }
+
     class var appBlue:UIColor {
         get {
             return UIColor(displayP3Red: 0.0/255.0, green: 112.0/255.0, blue: 210.0/255.0, alpha: 1.0)

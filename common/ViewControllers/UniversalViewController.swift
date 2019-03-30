@@ -38,7 +38,7 @@ class UniversalViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.navigationController?.navigationBar.barTintColor = UIColor.appDarkBlue
+        self.navigationController?.navigationBar.barTintColor = UIColor.appNavBarTint
         self.navigationController?.navigationBar.isTranslucent = false
         UIApplication.shared.statusBarStyle = .lightContent
         

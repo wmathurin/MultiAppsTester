@@ -62,7 +62,7 @@ class RootViewController: UniversalViewController {
                                                name: NSNotification.Name(rawValue: kSFPasscodeFlowWillBegin),
                                                object: nil)
         
-        self.title = "SmartSync Explorer"
+        self.title = Constants.AppName
         
         guard let settings = UIImage(named: "setting")?.withRenderingMode(.alwaysOriginal),
             let sync = UIImage(named: "sync")?.withRenderingMode(.alwaysOriginal),

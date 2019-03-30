@@ -334,19 +334,19 @@ class SObjectDataManager {
  
     func syncDown(_ completion: @escaping (SyncState) -> Void) -> Void {
         self.syncMgr.reSync(named: kSyncDownName) { [weak self] (syncState) in
-            completion(syncState)
             if (syncState.status == .done) {
                 self?.refreshLocalData()
             }
+            completion(syncState)
         }
     }
 
     func syncUp(_ completion: @escaping (SyncState) -> Void) -> Void {
         self.syncMgr.reSync(named: kSyncUpName) { [weak self] (syncState) in
-            completion(syncState)
             if (syncState.status == .done) {
                 self?.refreshLocalData()
             }
+            completion(syncState)
         }
     }
     

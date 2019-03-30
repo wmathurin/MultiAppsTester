@@ -1,16 +1,23 @@
 platform :ios, '11.0'
-
-project 'MultiAppsTester.xcodeproj'
-target 'MultiAppsTester' do
-
+use_frameworks!
 source 'https://github.com/CocoaPods/Specs.git'
 
-use_frameworks!
+workspace 'MultiAppsTester.xcworkspace'
 
-pod 'SalesforceSDKCommon', :path => 'mobile_sdk/SalesforceMobileSDK-iOS'
-pod 'SalesforceAnalytics', :path => 'mobile_sdk/SalesforceMobileSDK-iOS'
-pod 'SalesforceSDKCore', :path => 'mobile_sdk/SalesforceMobileSDK-iOS'
-pod 'SmartStore', :path => 'mobile_sdk/SalesforceMobileSDK-iOS'
-pod 'SmartSync', :path => 'mobile_sdk/SalesforceMobileSDK-iOS'
+def shared_pods
+  pod 'SalesforceSDKCommon', :path => 'mobile_sdk/SalesforceMobileSDK-iOS'
+  pod 'SalesforceAnalytics', :path => 'mobile_sdk/SalesforceMobileSDK-iOS'
+  pod 'SalesforceSDKCore', :path => 'mobile_sdk/SalesforceMobileSDK-iOS'
+  pod 'SmartStore', :path => 'mobile_sdk/SalesforceMobileSDK-iOS'
+  pod 'SmartSync', :path => 'mobile_sdk/SalesforceMobileSDK-iOS'
+end
 
+target 'MultiAppsTester1' do
+  project 'MultiAppsTester1.xcodeproj'
+  shared_pods
+end
+
+target 'MultiAppsTester2' do
+  project 'MultiAppsTester2.xcodeproj'
+  shared_pods
 end

@@ -93,9 +93,10 @@ class RootViewController: UniversalViewController {
 
        
         
-       
-        
-        syncUpDown()
+
+               
+        sObjectsDataManager.refreshLocalData()
+        refreshList()
     }
 
     @objc func showAdditionalActions(_ sender: UIBarButtonItem) {

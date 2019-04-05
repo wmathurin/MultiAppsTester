@@ -68,6 +68,7 @@ class SObjectData  {
         soupDict = [:]
         let spec = type(of: self).dataSpec()
         self.initSoupValues(spec?.fieldNames)
+        updateSoup(forFieldName: "Id", fieldValue: "local_\(Int(NSDate().timeIntervalSince1970*1000))")
         updateSoup(forFieldName: "attributes", fieldValue: ["type": spec?.objectType])
     }
     

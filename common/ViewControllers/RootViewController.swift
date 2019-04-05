@@ -115,6 +115,12 @@ class RootViewController: UniversalViewController {
                 self.runSync("syncUpContacts")
             })
         }
+
+        table.onCleanSyncGhostsSelected = {
+            table.dismiss(animated: true, completion: {
+                self.cleanSyncGhosts()
+            })
+        }
         
         table.onSyncManagerStopSelected = {
             table.dismiss(animated: true, completion: {
@@ -165,31 +171,52 @@ class RootViewController: UniversalViewController {
         syncUpDown()
     }
     
-    func runSync(_ syncName:String) {
-        let alert = self.showAlert("Running \(syncName)", message: "")
-        sObjectsDataManager.runSync(syncName, completion:{ [weak self] (syncState) in
-            DispatchQueue.main.async {
-                alert.message = (alert.message ?? "") + "\n" + (self?.infoForSyncState(syncState) ?? "")
-                if (syncState.status == .done) {
-                    alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { [weak self] (action: UIAlertAction!) in
-                        alert.dismiss(animated: true, completion: nil)
-                        self?.refreshList()
-                    }))
-                }
-            }
-        })
-    }
-    
     func infoForSyncState(_ syncState:SyncState) -> String {
         return "\(syncState.progress)% \(SyncState.syncStatus(toString:syncState.status)) totalSize:\(syncState.totalSize) maxTs:\(syncState.maxTimeStamp)"
     }
     
+    func displayUpdate(isLast:Bool, info:String?, alert:UIAlertController) {
+        DispatchQueue.main.async {
+            alert.message = (alert.message ?? "") + "\n" + (info ?? "")
+            if (isLast) {
+                alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { [weak self] (action: UIAlertAction!) in
+                    alert.dismiss(animated: true, completion: nil)
+                    self?.refreshList()
+                }))
+            }
+        }
+    }
+    
+    func runSync(_ syncName:String) {
+        let alert = self.showAlert("Running \(syncName)", message: "")
+        sObjectsDataManager.runSync(syncName, completion:{ [weak self] (syncState) in
+            let info = self?.infoForSyncState(syncState)
+            let isLast = syncState.status != .running
+            self?.displayUpdate(isLast:isLast, info:info, alert:alert);
+        })
+    }
+    
+    func cleanSyncGhosts() {
+        let alert = self.showAlert("Cleaning sync ghosts", message: "")
+        sObjectsDataManager.cleanSyncGhosts { [weak self] (status, numRecords) in
+            let info = "Clean ghosts:\(numRecords)records \(SyncState.syncStatus(toString:status))"
+            let isLast = status != .running
+            self?.displayUpdate(isLast:isLast, info:info, alert:alert)
+        }
+
+    }
+    
     func syncManagerStop() {
-        // TBD
+        sObjectsDataManager.stopSyncManager();
     }
     
     func syncManagerResume() {
-        // TBD
+        let alert = self.showAlert("Resuming sync manager", message:"");
+        sObjectsDataManager.resumeSyncManager({ [weak self] (syncState) in
+            let info = self?.infoForSyncState(syncState)
+            let isLast = syncState.status != .running
+            self?.displayUpdate(isLast:isLast, info:info, alert:alert);
+        })
     }
     
     func syncUpDown(){

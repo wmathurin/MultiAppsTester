@@ -203,7 +203,7 @@ class SObjectDataManager {
     private let kSearchFilterQueueName = "com.salesforce.smartSyncExplorer.searchFilterQueue"
     private let kSyncDownName = "syncDownContacts";
     private let kSyncUpName = "syncUpContacts";
-    private let kMaxQueryPageSize: UInt = 1000;
+    private let kMaxQueryPageSize: UInt = 10000;
     
     private var searchFilterQueue: DispatchQueue?
     
@@ -339,6 +339,25 @@ class SObjectDataManager {
             }
             completion(syncState)
         }
+    }
+    
+    func cleanSyncGhosts(_ completion: @escaping (SyncStatus, UInt) -> Void) -> Void {
+        if let syncId = self.syncMgr.syncStatus(forName: kSyncDownName)?.syncId {
+            self.syncMgr.cleanResyncGhosts(forId:NSNumber.init(value:syncId), onComplete:completion)
+        }
+    }
+    
+    func stopSyncManager() -> Void {
+        self.syncMgr.stop();
+    }
+
+    func resumeSyncManager(_ completion: @escaping (SyncState) -> Void) -> Void {
+        self.syncMgr.resume(restartStoppedSyncs:true, onUpdate:{ [weak self] (syncState) in
+            if (syncState.status == .done) {
+                self?.refreshLocalData()
+            }
+            completion(syncState)
+        })
     }
     
     func refreshLocalData() -> Void {

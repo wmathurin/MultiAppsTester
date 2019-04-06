@@ -189,21 +189,28 @@ class RootViewController: UniversalViewController {
     
     func runSync(_ syncName:String) {
         let alert = self.showAlert("Running \(syncName)", message: "")
-        sObjectsDataManager.runSync(syncName, completion:{ [weak self] (syncState) in
-            let info = self?.infoForSyncState(syncState)
-            let isLast = syncState.status != .running
-            self?.displayUpdate(isLast:isLast, info:info, alert:alert);
-        })
+        do {
+            try sObjectsDataManager.runSync(syncName, completion:{ [weak self] (syncState) in
+                let info = self?.infoForSyncState(syncState)
+                let isLast = syncState.status != .running
+                self?.displayUpdate(isLast:isLast, info:info, alert:alert);
+            })
+        } catch {
+            self.displayUpdate(isLast:true, info:"Failed with error \(error)", alert:alert)
+        }
     }
     
     func cleanSyncGhosts() {
         let alert = self.showAlert("Cleaning sync ghosts", message: "")
-        sObjectsDataManager.cleanSyncGhosts { [weak self] (status, numRecords) in
-            let info = "Clean ghosts:\(numRecords)records \(SyncState.syncStatus(toString:status))"
-            let isLast = status != .running
-            self?.displayUpdate(isLast:isLast, info:info, alert:alert)
+        do {
+            try sObjectsDataManager.cleanSyncGhosts { [weak self] (status, numRecords) in
+                let info = "Clean ghosts:\(numRecords)records \(SyncState.syncStatus(toString:status))"
+                let isLast = status != .running
+                self?.displayUpdate(isLast:isLast, info:info, alert:alert)
+            }
+        } catch {
+            self.displayUpdate(isLast:true, info:"Failed with error \(error)", alert:alert)
         }
-
     }
     
     func syncManagerStop() {
@@ -212,11 +219,15 @@ class RootViewController: UniversalViewController {
     
     func syncManagerResume() {
         let alert = self.showAlert("Resuming sync manager", message:"");
-        sObjectsDataManager.resumeSyncManager({ [weak self] (syncState) in
-            let info = self?.infoForSyncState(syncState)
-            let isLast = syncState.status != .running
-            self?.displayUpdate(isLast:isLast, info:info, alert:alert);
-        })
+        do {
+            try sObjectsDataManager.resumeSyncManager({ [weak self] (syncState) in
+                let info = self?.infoForSyncState(syncState)
+                let isLast = syncState.status != .running
+                self?.displayUpdate(isLast:isLast, info:info, alert:alert);
+            })
+        } catch {
+            self.displayUpdate(isLast:true, info:"Failed with error \(error)", alert:alert)
+        }
     }
     
     func syncUpDown(){

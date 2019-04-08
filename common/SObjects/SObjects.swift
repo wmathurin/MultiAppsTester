@@ -333,8 +333,8 @@ class SObjectDataManager {
         return value ?? false
     }
  
-    func runSync(_ syncName:String, completion: @escaping (SyncState) -> Void) -> Void {
-        self.syncMgr.reSync(named: syncName) { [weak self] (syncState) in
+    func runSync(_ syncName:String, completion: @escaping (SyncState) -> Void) throws -> Void {
+        try self.syncMgr.reSync(named: syncName) { [weak self] (syncState) in
             if (syncState.status == .done) {
                 self?.refreshLocalData()
             }
@@ -342,18 +342,16 @@ class SObjectDataManager {
         }
     }
     
-    func cleanSyncGhosts(_ completion: @escaping (SyncStatus, UInt) -> Void) -> Void {
-        if let syncId = self.syncMgr.syncStatus(forName: kSyncDownName)?.syncId {
-            self.syncMgr.cleanResyncGhosts(forId:NSNumber.init(value:syncId), onComplete:completion)
-        }
+    func cleanSyncGhosts(_ completion: @escaping (SyncStatus, UInt) -> Void) throws -> Void {
+        try self.syncMgr.cleanResyncGhosts(forName:kSyncDownName, onComplete:completion)
     }
     
     func stopSyncManager() -> Void {
         self.syncMgr.stop();
     }
 
-    func resumeSyncManager(_ completion: @escaping (SyncState) -> Void) -> Void {
-        self.syncMgr.resume(restartStoppedSyncs:true, onUpdate:{ [weak self] (syncState) in
+    func resumeSyncManager(_ completion: @escaping (SyncState) -> Void) throws -> Void {
+        try self.syncMgr.resume(restartStoppedSyncs:true, onUpdate:{ [weak self] (syncState) in
             if (syncState.status == .done) {
                 self?.refreshLocalData()
             }
@@ -372,7 +370,7 @@ class SObjectDataManager {
     
     func refreshRemoteData(_ completion: @escaping ([SObjectData]) -> Void, onFailure: @escaping (NSError?, SyncState) -> Void  ) throws -> Void {
        
-        self.syncMgr.reSync(named: kSyncDownName) { [weak self] (syncState) in
+        try self.syncMgr.reSync(named: kSyncDownName) { [weak self] (syncState) in
             switch (syncState.status) {
             case .done:
                 do {
@@ -380,48 +378,51 @@ class SObjectDataManager {
                     self?.populateDataRows(objects)
                     completion(self?.fullDataRowList ?? [])
                 } catch {
-                   SmartSyncLogger.e(SObjectDataManager.self, message: "Resync \(syncState.syncName) failed \(error)" )
+                    SmartSyncLogger.e(SObjectDataManager.self, message: "Resync \(syncState.syncName) failed \(error)" )
                 }
                 break
             case .failed:
-                 SmartSyncLogger.e(SObjectDataManager.self, message: "Resync \(syncState.syncName) failed" )
-                 onFailure(nil,syncState)
+                SmartSyncLogger.e(SObjectDataManager.self, message: "Resync \(syncState.syncName) failed" )
+                onFailure(nil,syncState)
             default:
                 break
             }
         }
- 
     }
     
-    func updateRemoteData(_ onSuccess: @escaping ([SObjectData]) -> Void, onFailure:@escaping (NSError?, SyncState) -> Void) -> Void {
+    func updateRemoteData(_ onSuccess: @escaping ([SObjectData]) -> Void, onFailure:@escaping (NSError?, SyncState?) -> Void) -> Void {
         
-        self.syncMgr.reSync(named: kSyncUpName) { [weak self] (syncState) in
-            guard let strongSelf = self else {
-                return
-            }
-            switch (syncState.status) {
+        do {
+            try self.syncMgr.reSync(named: kSyncUpName) { [weak self] (syncState) in
+                guard let strongSelf = self else {
+                    return
+                }
+                switch (syncState.status) {
                 case .done:
                     do {
                         let objects = try strongSelf.queryLocalData()
                         strongSelf.populateDataRows(objects)
                         try strongSelf.refreshRemoteData({ (sobjs) in
-                                 onSuccess(sobjs)
-                            }, onFailure:  { (error,syncState) in
-                                onFailure(error,syncState)
-                            }
+                            onSuccess(sobjs)
+                        }, onFailure:  { (error,syncState) in
+                            onFailure(error,syncState)
+                        }
                         )
                     } catch let error as NSError {
                         SmartSyncLogger.e(SObjectDataManager.self, message: "Error with Resync \(error)" )
                         onFailure(error,syncState)
                     }
                     break
-            case .failed:
+                case .failed:
                     SmartSyncLogger.e(SObjectDataManager.self, message: "Resync \(syncState.syncName) failed" )
                     onFailure(nil,syncState)
                     break
                 default:
                     break
+                }
             }
+        } catch {
+            onFailure(error as NSError, nil)
         }
     }
 

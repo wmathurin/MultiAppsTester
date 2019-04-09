@@ -388,7 +388,7 @@ class SObjectDataManager {
     }
 
     func resumeSyncManager(_ completion: @escaping (SyncState) -> Void) throws -> Void {
-        try self.syncMgr.resume(restartStoppedSyncs:true, onUpdate:{ [weak self] (syncState) in
+        try self.syncMgr.restart(restartStoppedSyncs:true, onUpdate:{ [weak self] (syncState) in
             if (syncState.status == .done) {
                 self?.refreshLocalData()
             }

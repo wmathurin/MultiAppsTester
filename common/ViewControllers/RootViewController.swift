@@ -90,13 +90,6 @@ class RootViewController: UniversalViewController {
                                                    self.tableView.rightAnchor.constraint(equalTo: safe.rightAnchor),
                                                    self.tableView.topAnchor.constraint(equalTo: safe.topAnchor),
                                                    self.tableView.bottomAnchor.constraint(equalTo: safe.bottomAnchor)])
-
-       
-        
-
-               
-        sObjectsDataManager.refreshLocalData()
-        refreshList()
     }
 
     @objc func showAdditionalActions(_ sender: UIBarButtonItem) {
@@ -104,6 +97,30 @@ class RootViewController: UniversalViewController {
         table.modalPresentationStyle = .popover
         table.preferredContentSize = CGSize(width: 200.0, height: 132.0)
         
+        table.onShowInfo = {
+            table.dismiss(animated: true, completion: {
+                self.showInfo()
+            })
+        }
+        
+        table.onClearLocalData = {
+            table.dismiss(animated: true, completion: {
+                self.clearLocalData()
+            })
+        }        
+
+        table.onRefreshLocalData = {
+            table.dismiss(animated: true, completion: {
+                self.refreshLocalData()
+            })
+        }
+
+        table.onSyncManagerResumeSelected = {
+            table.dismiss(animated: true, completion: {
+                self.syncManagerResume()
+            })
+        }
+
         table.onSyncDownSelected = {
             table.dismiss(animated: true, completion: {
                 self.runSync("syncDownContacts")
@@ -171,6 +188,31 @@ class RootViewController: UniversalViewController {
         syncUpDown()
     }
     
+    func showInfo() {
+        let syncManagerState = self.sObjectsDataManager.isSyncManagerStopping() ? "stopping" : (self.sObjectsDataManager.isSyncManagerStopped() ? "stopped" : "accepting_syncs")
+        
+        let message = ""
+            + "syncManager:\(syncManagerState)\n"
+            + "numberOfContacts=\(self.sObjectsDataManager.countContacts())\n"
+            + "syncDownContacts=\(self.infoForSyncState(self.sObjectsDataManager.getSync("syncDownContacts")))\n"
+            + "syncUpContacts=\(self.infoForSyncState(self.sObjectsDataManager.getSync("syncUpContacts")))"
+        
+        let alert = self.showAlert("Syncs info", message: message)
+        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { [weak self] (action: UIAlertAction!) in
+            alert.dismiss(animated: true, completion: nil)
+        }))
+    }
+    
+    func clearLocalData() {
+        self.sObjectsDataManager.clearLocalData()
+        self.refreshList()
+    }
+    
+    func refreshLocalData() {
+        self.sObjectsDataManager.refreshLocalData()
+        self.refreshList()
+    }
+    
     func infoForSyncState(_ syncState:SyncState) -> String {
         return "\(syncState.progress)% \(SyncState.syncStatus(toString:syncState.status)) totalSize:\(syncState.totalSize) maxTs:\(syncState.maxTimeStamp)"
     }
@@ -189,11 +231,15 @@ class RootViewController: UniversalViewController {
     
     func runSync(_ syncName:String) {
         let alert = self.showAlert("Running \(syncName)", message: "")
+        alert.addAction(UIAlertAction(title: "Stop", style: .default, handler: { [weak self] (action: UIAlertAction!) in
+            self?.sObjectsDataManager.stopSyncManager()
+            alert.message = (alert.message ?? "" ) + "\nRequesting sync manager stop"
+        }))
         do {
             try sObjectsDataManager.runSync(syncName, completion:{ [weak self] (syncState) in
                 let info = self?.infoForSyncState(syncState)
                 let isLast = syncState.status != .running
-                self?.displayUpdate(isLast:isLast, info:info, alert:alert);
+                self?.displayUpdate(isLast:isLast, info:info, alert:alert)
             })
         } catch {
             self.displayUpdate(isLast:true, info:"Failed with error \(error)", alert:alert)
@@ -202,6 +248,10 @@ class RootViewController: UniversalViewController {
     
     func cleanSyncGhosts() {
         let alert = self.showAlert("Cleaning sync ghosts", message: "")
+        alert.addAction(UIAlertAction(title: "Stop", style: .default, handler: { [weak self] (action: UIAlertAction!) in
+            self?.sObjectsDataManager.stopSyncManager()
+            alert.message = (alert.message ?? "" ) + "\nRequesting sync manager stop"
+        }))
         do {
             try sObjectsDataManager.cleanSyncGhosts { [weak self] (status, numRecords) in
                 let info = "Clean ghosts:\(numRecords)records \(SyncState.syncStatus(toString:status))"
@@ -214,16 +264,16 @@ class RootViewController: UniversalViewController {
     }
     
     func syncManagerStop() {
-        sObjectsDataManager.stopSyncManager();
+        sObjectsDataManager.stopSyncManager()
     }
     
     func syncManagerResume() {
-        let alert = self.showAlert("Resuming sync manager", message:"");
+        let alert = self.showAlert("Resuming sync manager", message:"")
         do {
             try sObjectsDataManager.resumeSyncManager({ [weak self] (syncState) in
                 let info = self?.infoForSyncState(syncState)
                 let isLast = syncState.status != .running
-                self?.displayUpdate(isLast:isLast, info:info, alert:alert);
+                self?.displayUpdate(isLast:isLast, info:info, alert:alert)
             })
         } catch {
             self.displayUpdate(isLast:true, info:"Failed with error \(error)", alert:alert)

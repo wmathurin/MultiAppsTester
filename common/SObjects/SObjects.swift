@@ -242,6 +242,42 @@ class SObjectDataManager {
         self.fullDataRowList =  mutableDataRows
     }
     
+    func clearLocalData() {
+        store.clearSoup(self.dataSpec.soupName)
+        self.resetSync(kSyncDownName)
+        self.resetSync(kSyncUpName)
+        self.refreshLocalData()
+    }
+    
+    func resetSync(_ syncName: String) {
+        let sync = self.syncMgr.syncStatus(forName:syncName)
+        sync?.maxTimeStamp = -1
+        sync?.status = .new
+        sync?.totalSize = -1
+        sync?.save(self.store)
+    }
+    
+    func isSyncManagerStopping() -> Bool {
+        return self.syncMgr.isStopping()
+    }
+
+    func isSyncManagerStopped() -> Bool {
+        return self.syncMgr.isStopped()
+    }
+    
+    func countContacts() -> Int {
+        var count = -1
+        if let querySpec = QuerySpec.buildSmartQuerySpec(smartSql:"select count(*) from {\(self.dataSpec.soupName)}", pageSize:UInt.max) {
+            do {
+                count = try self.store.count(using:querySpec).intValue
+            } catch {
+                SmartSyncLogger.e(SObjectDataManager.self, message: "countContacts \(error)" )
+            }
+        }
+        
+        return count
+    }
+    
     func createLocalData(_ newData: SObjectData?) throws -> [SObjectData] {
         guard let newData = newData else {
             return []
@@ -366,6 +402,10 @@ class SObjectDataManager {
         } catch {
             SmartSyncLogger.e(SObjectDataManager.self, message: "Refresh local data failed \(error)" )
         }
+    }
+    
+    func getSync(_ syncName: String) -> SyncState {
+        return self.syncMgr.syncStatus(forName: syncName)!
     }
     
     func refreshRemoteData(_ completion: @escaping ([SObjectData]) -> Void, onFailure: @escaping (NSError?, SyncState) -> Void  ) throws -> Void {

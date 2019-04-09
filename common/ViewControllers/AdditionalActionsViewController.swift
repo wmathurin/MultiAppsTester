@@ -31,6 +31,9 @@ import UIKit
 
 class AdditionalActionsViewController: UITableViewController {
     
+    var onShowInfo: (() -> ())?
+    var onClearLocalData: (() -> ())?
+    var onRefreshLocalData: (() -> ())?
     var onSyncDownSelected: (() -> ())?
     var onSyncUpSelected: (() -> ())?
     var onCleanSyncGhostsSelected: (() -> ())?
@@ -58,7 +61,7 @@ class AdditionalActionsViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 9
+        return 10
     }
 
     
@@ -69,22 +72,28 @@ class AdditionalActionsViewController: UITableViewController {
         cell.textLabel?.textColor = UIColor.labelText
         
         if indexPath.row == 0 {
-            cell.textLabel?.text = "Sync DOWN"
+            cell.textLabel?.text = "Show info"
         } else if indexPath.row == 1 {
-            cell.textLabel?.text = "Sync UP"
+            cell.textLabel?.text = "Clear local data"
         } else if indexPath.row == 2 {
-            cell.textLabel?.text = "Clean Sync Ghosts"
+            cell.textLabel?.text = "Refresh local data"
         } else if indexPath.row == 3 {
-            cell.textLabel?.text = "STOP Sync Manager"
+            cell.textLabel?.text = "Sync DOWN"
         } else if indexPath.row == 4 {
-            cell.textLabel?.text = "RESUME Sync Manager"
+            cell.textLabel?.text = "Sync UP"
         } else if indexPath.row == 5 {
-            cell.textLabel?.text = "Logout"
+            cell.textLabel?.text = "Clean Sync Ghosts"
         } else if indexPath.row == 6 {
-            cell.textLabel?.text = "Switch User"
+            cell.textLabel?.text = "STOP Sync Manager"
         } else if indexPath.row == 7 {
-            cell.textLabel?.text = "Inspect DB"
+            cell.textLabel?.text = "RESUME Sync Manager"
         } else if indexPath.row == 8 {
+            cell.textLabel?.text = "Logout"
+        } else if indexPath.row == 9 {
+            cell.textLabel?.text = "Switch User"
+        } else if indexPath.row == 10 {
+            cell.textLabel?.text = "Inspect DB"
+        } else if indexPath.row == 11 {
             cell.textLabel?.text = "Cancel"
         }
 
@@ -93,22 +102,28 @@ class AdditionalActionsViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.row == 0 {
-            self.onSyncDownSelected?()
+            self.onShowInfo?()
         } else if indexPath.row == 1 {
-            self.onSyncUpSelected?()
+            self.onClearLocalData?()
         } else if indexPath.row == 2 {
-            self.onCleanSyncGhostsSelected?()
+            self.onRefreshLocalData?()
         } else if indexPath.row == 3 {
-            self.onSyncManagerStopSelected?()
+            self.onSyncDownSelected?()
         } else if indexPath.row == 4 {
-            self.onSyncManagerResumeSelected?()
+            self.onSyncUpSelected?()
+        } else if indexPath.row == 5 {
+            self.onCleanSyncGhostsSelected?()
         } else if indexPath.row == 6 {
-            self.onLogoutSelected?()
-        } else if indexPath.row == 6 {
-            self.onSwitchUserSelected?()
+            self.onSyncManagerStopSelected?()
         } else if indexPath.row == 7 {
+            self.onSyncManagerResumeSelected?()
+        } else if indexPath.row == 8 {
+            self.onLogoutSelected?()
+        } else if indexPath.row == 9 {
+            self.onSwitchUserSelected?()
+        } else if indexPath.row == 10 {
             self.onDBInspectorSelected?()
-        }else if indexPath.row  == 8 {
+        }else if indexPath.row  == 11 {
             self.onCancelSelected?()
         }
     }

@@ -252,6 +252,7 @@ class SObjectDataManager {
     func resetSync(_ syncName: String) {
         let sync = self.syncMgr.syncStatus(forName:syncName)
         sync?.maxTimeStamp = -1
+        sync?.progress = 0
         sync?.status = .new
         sync?.totalSize = -1
         sync?.save(self.store)
@@ -267,7 +268,7 @@ class SObjectDataManager {
     
     func countContacts() -> Int {
         var count = -1
-        if let querySpec = QuerySpec.buildSmartQuerySpec(smartSql:"select count(*) from {\(self.dataSpec.soupName)}", pageSize:UInt.max) {
+        if let querySpec = QuerySpec.buildSmartQuerySpec(smartSql:"select * from {\(self.dataSpec.soupName)}", pageSize:UInt.max) {
             do {
                 count = try self.store.count(using:querySpec).intValue
             } catch {

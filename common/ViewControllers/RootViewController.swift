@@ -269,6 +269,10 @@ class RootViewController: UniversalViewController {
     
     func syncManagerResume() {
         let alert = self.showAlert("Resuming sync manager", message:"")
+        alert.addAction(UIAlertAction(title: "Stop", style: .default, handler: { [weak self] (action: UIAlertAction!) in
+            self?.sObjectsDataManager.stopSyncManager()
+            alert.message = (alert.message ?? "" ) + "\nRequesting sync manager stop"
+        }))
         do {
             try sObjectsDataManager.resumeSyncManager({ [weak self] (syncState) in
                 let info = self?.infoForSyncState(syncState)

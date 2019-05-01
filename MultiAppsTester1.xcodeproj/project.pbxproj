@@ -17,7 +17,6 @@
 		B76D655C20B3314A00B55764 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B76D655B20B3314A00B55764 /* Assets.xcassets */; };
 		B76D656320B3322B00B55764 /* ContactDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B76D655E20B3322B00B55764 /* ContactDetailViewController.swift */; };
 		B76D656420B3322B00B55764 /* RootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B76D655F20B3322B00B55764 /* RootViewController.swift */; };
-		B76D656520B3322B00B55764 /* AdditionalActionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B76D656020B3322B00B55764 /* AdditionalActionsViewController.swift */; };
 		B76D656620B3322B00B55764 /* InitialViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B76D656120B3322B00B55764 /* InitialViewController.swift */; };
 		B76D656720B3322B00B55764 /* UniversalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B76D656220B3322B00B55764 /* UniversalViewController.swift */; };
 		B76D656D20B3323A00B55764 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B76D656920B3323A00B55764 /* Constants.swift */; };
@@ -47,7 +46,6 @@
 		B76D655B20B3314A00B55764 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B76D655E20B3322B00B55764 /* ContactDetailViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactDetailViewController.swift; sourceTree = "<group>"; };
 		B76D655F20B3322B00B55764 /* RootViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RootViewController.swift; sourceTree = "<group>"; };
-		B76D656020B3322B00B55764 /* AdditionalActionsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AdditionalActionsViewController.swift; sourceTree = "<group>"; };
 		B76D656120B3322B00B55764 /* InitialViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InitialViewController.swift; sourceTree = "<group>"; };
 		B76D656220B3322B00B55764 /* UniversalViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UniversalViewController.swift; sourceTree = "<group>"; };
 		B76D656920B3323A00B55764 /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -147,7 +145,6 @@
 			children = (
 				B76D655E20B3322B00B55764 /* ContactDetailViewController.swift */,
 				B76D655F20B3322B00B55764 /* RootViewController.swift */,
-				B76D656020B3322B00B55764 /* AdditionalActionsViewController.swift */,
 				B76D656120B3322B00B55764 /* InitialViewController.swift */,
 				B76D656220B3322B00B55764 /* UniversalViewController.swift */,
 			);
@@ -334,7 +331,6 @@
 				B76D656420B3322B00B55764 /* RootViewController.swift in Sources */,
 				B76D656620B3322B00B55764 /* InitialViewController.swift in Sources */,
 				B70E43BC225410B700D95D5D /* AppDelegate.swift in Sources */,
-				B76D656520B3322B00B55764 /* AdditionalActionsViewController.swift in Sources */,
 				B76D65DD20B4A0C900B55764 /* Contacts.swift in Sources */,
 				4F393A291C3C8BCD00B3EA13 /* main.swift in Sources */,
 				B76D656320B3322B00B55764 /* ContactDetailViewController.swift in Sources */,

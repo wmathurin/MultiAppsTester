@@ -33,7 +33,7 @@ import SmartSync
 
 class RootViewController: UniversalViewController {
     
-    weak var presentedActions:AdditionalActionsViewController?
+    weak var actionsAlert:UIAlertController?
     weak var logoutAlert:UIAlertController?
     
     fileprivate var searchText:String = ""
@@ -113,93 +113,80 @@ class RootViewController: UniversalViewController {
     }
 
     @objc func showAdditionalActions(_ sender: UIBarButtonItem) {
-        let table = AdditionalActionsViewController()
-        table.modalPresentationStyle = .popover
-        table.preferredContentSize = CGSize(width: 200.0, height: 132.0)
-        
-        table.onToggleStopWhenBackgrounding = {
-            table.dismiss(animated: true, completion: {
-                self.stopWhenBackgrounding = !self.stopWhenBackgrounding
-            })
+        if let alert = self.actionsAlert {
+            alert.dismiss(animated:false, completion:nil)
         }
         
-        table.onShowInfo = {
-            table.dismiss(animated: true, completion: {
-                self.showInfo()
-            })
-        }
-        
-        table.onClearLocalData = {
-            table.dismiss(animated: true, completion: {
-                self.clearLocalData()
-            })
-        }        
+        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
-        table.onRefreshLocalData = {
-            table.dismiss(animated: true, completion: {
-                self.refreshLocalData()
-            })
-        }
+        alert.addAction(UIAlertAction(title: "Toggle stop when backgrounding", style: .default, handler: { [weak self] (action: UIAlertAction!) in
+            if let stopWhenBackgrounding = self?.stopWhenBackgrounding {
+                self?.stopWhenBackgrounding = !stopWhenBackgrounding
+            }
+            alert.dismiss(animated: true, completion: nil)
+        }))
 
-        table.onSyncManagerResumeSelected = {
-            table.dismiss(animated: true, completion: {
-                self.syncManagerResume()
-            })
-        }
+        alert.addAction(UIAlertAction(title: "Show Info", style: .default, handler: { [weak self] (action: UIAlertAction!) in
+            self?.showInfo()
+            alert.dismiss(animated: true, completion: nil)
+        }))
 
-        table.onSyncDownSelected = {
-            table.dismiss(animated: true, completion: {
-                self.runSync("syncDownContacts")
-            })
-        }
-        
-        table.onSyncUpSelected = {
-            table.dismiss(animated: true, completion: {
-                self.runSync("syncUpContacts")
-            })
-        }
+        alert.addAction(UIAlertAction(title: "Refresh local data", style: .default, handler: { [weak self] (action: UIAlertAction!) in
+            self?.refreshLocalData()
+            alert.dismiss(animated: true, completion: nil)
+        }))
 
-        table.onCleanSyncGhostsSelected = {
-            table.dismiss(animated: true, completion: {
-                self.cleanSyncGhosts()
-            })
-        }
-        
-        table.onSyncManagerStopSelected = {
-            table.dismiss(animated: true, completion: {
-                self.syncManagerStop()
-            })
-        }
-        
-        table.onSyncManagerResumeSelected = {
-            table.dismiss(animated: true, completion: {
-                self.syncManagerResume()
-            })
-        }
-        
-        table.onLogoutSelected = {
-            table.dismiss(animated: true, completion: {
-                self.showLogoutActionSheet()
-            })
-        }
-        table.onSwitchUserSelected = {
-            table.dismiss(animated: true, completion: {
-                self.showSwitchUserController()
-            })
-        }
-        table.onDBInspectorSelected = {
-            table.dismiss(animated: true, completion: {
-                self.showDBInspector()
-            })
-        }
-        table.onCancelSelected = {
-            table.dismiss(animated: true, completion: nil)
-        }
-        
-        self.present(table, animated: true, completion: nil)
-        self.presentedActions = table
-        let popover = table.popoverPresentationController
-        popover?.barButtonItem = sender
+        alert.addAction(UIAlertAction(title: "RESUME sync manager", style: .default, handler: { [weak self] (action: UIAlertAction!) in
+            self?.syncManagerResume()
+            alert.dismiss(animated: true, completion: nil)
+        }))
+
+        alert.addAction(UIAlertAction(title: "STOP sync manager", style: .default, handler: { [weak self] (action: UIAlertAction!) in
+            self?.syncManagerStop()
+            alert.dismiss(animated: true, completion: nil)
+        }))
+
+        alert.addAction(UIAlertAction(title: "Sync DOWN", style: .default, handler: { [weak self] (action: UIAlertAction!) in
+            self?.runSync("syncDownContacts")
+            alert.dismiss(animated: true, completion: nil)
+        }))
+
+        alert.addAction(UIAlertAction(title: "Sync UP", style: .default, handler: { [weak self] (action: UIAlertAction!) in
+            self?.runSync("syncUpContacts")
+            alert.dismiss(animated: true, completion: nil)
+        }))
+
+        alert.addAction(UIAlertAction(title: "Clean Ghosts", style: .default, handler: { [weak self] (action: UIAlertAction!) in
+            self?.cleanSyncGhosts()
+            alert.dismiss(animated: true, completion: nil)
+        }))
+
+        alert.addAction(UIAlertAction(title: "Switch user", style: .default, handler: { [weak self] (action: UIAlertAction!) in
+            self?.showSwitchUserController()
+            alert.dismiss(animated: true, completion: nil)
+        }))
+
+        alert.addAction(UIAlertAction(title: "Inspect DB", style: .default, handler: { [weak self] (action: UIAlertAction!) in
+            self?.showDBInspector()
+            alert.dismiss(animated: true, completion: nil)
+        }))
+
+        alert.addAction(UIAlertAction(title: "Logout", style: .destructive, handler: { [weak self] (action: UIAlertAction!) in
+            self?.showLogoutActionSheet()
+            alert.dismiss(animated: true, completion: nil)
+        }))
+
+        alert.addAction(UIAlertAction(title: "Clear local data", style: .destructive, handler: { [weak self] (action: UIAlertAction!) in
+            self?.clearLocalData()
+            alert.dismiss(animated: true, completion: nil)
+        }))
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { [weak self] (action: UIAlertAction!) in
+            alert.dismiss(animated: true, completion: nil)
+        }))
+
+        self.present(alert, animated: true, completion: nil)
+        self.actionsAlert = alert
     }
     
     @objc func didPressAddContact() {
@@ -225,7 +212,7 @@ class RootViewController: UniversalViewController {
             + "syncUpContacts=\(self.infoForSyncState(self.sObjectsDataManager.getSync("syncUpContacts")))"
         
         let alert = self.showAlert("Syncs info", message: message)
-        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { [weak self] (action: UIAlertAction!) in
+        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
             alert.dismiss(animated: true, completion: nil)
         }))
     }
@@ -335,15 +322,8 @@ class RootViewController: UniversalViewController {
             alert.dismiss(animated: true, completion: nil)
         }
         
-        self.dismissPopover()
-    }
-    
-    func dismissPopover() {
-        if let p = self.presentedActions {
-            p.dismiss(animated: true, completion: nil)
-        }
-        if let l = self.logoutAlert {
-            l.dismiss(animated: true, completion: nil)
+        if let actionsAlert = self.actionsAlert {
+            actionsAlert.dismiss(animated: true, completion: nil)
         }
     }
     

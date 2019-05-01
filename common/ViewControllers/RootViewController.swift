@@ -40,6 +40,7 @@ class RootViewController: UniversalViewController {
     fileprivate let tableView = UITableView(frame: .zero, style: .plain)
     fileprivate let searchController = UISearchController(searchResultsController: nil)
     fileprivate var sObjectsDataManager = SObjectDataManager(dataSpec: ContactSObjectData.dataSpec()!)
+    fileprivate var stopWhenBackgrounding = false
     
     deinit {
         NotificationCenter.default.removeObserver(self)
@@ -90,12 +91,37 @@ class RootViewController: UniversalViewController {
                                                    self.tableView.rightAnchor.constraint(equalTo: safe.rightAnchor),
                                                    self.tableView.topAnchor.constraint(equalTo: safe.topAnchor),
                                                    self.tableView.bottomAnchor.constraint(equalTo: safe.bottomAnchor)])
+
+        let notificationCenter = NotificationCenter.default
+        notificationCenter.addObserver(self, selector: #selector(appMovedToBackground), name: UIApplication.willResignActiveNotification, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(appMovedToForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
+
+    }
+    
+    @objc func appMovedToBackground() {
+        if (self.stopWhenBackgrounding) {
+            SalesforceLogger.d(type(of: self), message: "appMovedToBackground: stopping sync manager")
+            sObjectsDataManager.stopSyncManager()
+        }
+    }
+    
+    @objc func appMovedToForeground() {
+        if (self.stopWhenBackgrounding) {
+            SalesforceLogger.d(type(of: self), message: "appMovedToForeground: resuming sync manager")
+            sObjectsDataManager.resumeSyncManagerWithoutRestartingStoppedSyncs()
+        }
     }
 
     @objc func showAdditionalActions(_ sender: UIBarButtonItem) {
         let table = AdditionalActionsViewController()
         table.modalPresentationStyle = .popover
         table.preferredContentSize = CGSize(width: 200.0, height: 132.0)
+        
+        table.onToggleStopWhenBackgrounding = {
+            table.dismiss(animated: true, completion: {
+                self.stopWhenBackgrounding = !self.stopWhenBackgrounding
+            })
+        }
         
         table.onShowInfo = {
             table.dismiss(animated: true, completion: {
@@ -192,6 +218,7 @@ class RootViewController: UniversalViewController {
         let syncManagerState = self.sObjectsDataManager.isSyncManagerStopping() ? "stopping" : (self.sObjectsDataManager.isSyncManagerStopped() ? "stopped" : "accepting_syncs")
         
         let message = ""
+            + "stopWhenBackgrounding:\(self.stopWhenBackgrounding)\n"
             + "syncManager:\(syncManagerState)\n"
             + "numberOfContacts=\(self.sObjectsDataManager.countContacts())\n"
             + "syncDownContacts=\(self.infoForSyncState(self.sObjectsDataManager.getSync("syncDownContacts")))\n"
@@ -293,9 +320,11 @@ class RootViewController: UniversalViewController {
                 self?.refreshList()
             }
         }, onFailure: { [weak self] (error, syncState) in
-            alert.message = "Sync Failed!"
-            alert.dismiss(animated: true, completion: nil)
-            self?.refreshList()
+            DispatchQueue.main.async {
+                alert.message = "Sync failed!"
+                alert.dismiss(animated: true, completion: nil)
+                self?.refreshList()
+            }
         })
     }
     

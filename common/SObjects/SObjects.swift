@@ -387,6 +387,15 @@ class SObjectDataManager {
         self.syncMgr.stop();
     }
 
+    func resumeSyncManagerWithoutRestartingStoppedSyncs() {
+        do {
+            try self.syncMgr.restart(restartStoppedSyncs:false, onUpdate:{ [weak self] (syncState) in
+            })
+        } catch {
+            SmartSyncLogger.e(SObjectDataManager.self, message: "resumeSyncManagerWithoutRestartingStoppedSyncs failed \(error)" )
+        }
+    }
+    
     func resumeSyncManager(_ completion: @escaping (SyncState) -> Void) throws -> Void {
         try self.syncMgr.restart(restartStoppedSyncs:true, onUpdate:{ [weak self] (syncState) in
             if (syncState.status == .done) {
@@ -422,9 +431,14 @@ class SObjectDataManager {
                     SmartSyncLogger.e(SObjectDataManager.self, message: "Resync \(syncState.syncName) failed \(error)" )
                 }
                 break
+            case .stopped:
+                SmartSyncLogger.e(SObjectDataManager.self, message: "Resync \(syncState.syncName) stopped" )
+                onFailure(nil,syncState)
+                break
             case .failed:
                 SmartSyncLogger.e(SObjectDataManager.self, message: "Resync \(syncState.syncName) failed" )
                 onFailure(nil,syncState)
+                break
             default:
                 break
             }
@@ -453,6 +467,10 @@ class SObjectDataManager {
                         SmartSyncLogger.e(SObjectDataManager.self, message: "Error with Resync \(error)" )
                         onFailure(error,syncState)
                     }
+                    break
+                case .stopped:
+                    SmartSyncLogger.e(SObjectDataManager.self, message: "Resync \(syncState.syncName) stopped" )
+                    onFailure(nil,syncState)
                     break
                 case .failed:
                     SmartSyncLogger.e(SObjectDataManager.self, message: "Resync \(syncState.syncName) failed" )

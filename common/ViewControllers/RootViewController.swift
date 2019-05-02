@@ -198,7 +198,7 @@ class RootViewController: UniversalViewController {
             + "syncDownContacts=\(self.infoForSyncState(self.sObjectsDataManager.getSync("syncDownContacts")))\n"
             + "syncUpContacts=\(self.infoForSyncState(self.sObjectsDataManager.getSync("syncUpContacts")))"
         
-        let alert = self.showAlert("Syncs info", message: message)
+        let alert = self.showSheet("Syncs info", message: message)
         alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
     }
     
@@ -228,7 +228,7 @@ class RootViewController: UniversalViewController {
     }
     
     func runSync(_ syncName:String) {
-        let alert = self.showAlert("Running \(syncName)", message: "")
+        let alert = self.showSheet("Running \(syncName)", message: "")
         alert.addAction(UIAlertAction(title: "Stop", style: .cancel, handler: { [weak self] (action: UIAlertAction!) in
             self?.sObjectsDataManager.stopSyncManager()
             alert.message = (alert.message ?? "" ) + "\nRequesting sync manager stop"
@@ -245,7 +245,7 @@ class RootViewController: UniversalViewController {
     }
     
     func cleanSyncGhosts() {
-        let alert = self.showAlert("Cleaning sync ghosts", message: "")
+        let alert = self.showSheet("Cleaning sync ghosts", message: "")
         alert.addAction(UIAlertAction(title: "Stop", style: .cancel, handler: { [weak self] (action: UIAlertAction!) in
             self?.sObjectsDataManager.stopSyncManager()
             alert.message = (alert.message ?? "" ) + "\nRequesting sync manager stop"
@@ -266,7 +266,7 @@ class RootViewController: UniversalViewController {
     }
     
     func syncManagerResume() {
-        let alert = self.showAlert("Resuming sync manager", message:"")
+        let alert = self.showSheet("Resuming sync manager", message:"")
         alert.addAction(UIAlertAction(title: "Stop", style: .cancel, handler: { [weak self] (action: UIAlertAction!) in
             self?.sObjectsDataManager.stopSyncManager()
             alert.message = (alert.message ?? "" ) + "\nRequesting sync manager stop"
@@ -283,7 +283,8 @@ class RootViewController: UniversalViewController {
     }
     
     func syncUpDown(){
-        let alert = self.showAlert("Syncing", message: "Syncing with Salesforce")
+        let alert = UIAlertController(title: "Syncing", message: "Syncing with Salesforce", preferredStyle: .alert)
+        self.present(alert, animated: true, completion: nil)
         sObjectsDataManager.updateRemoteData({ [weak self] (sObjectsData) in
             DispatchQueue.main.async {
                 alert.message = "Sync Complete!"
@@ -311,9 +312,8 @@ class RootViewController: UniversalViewController {
         }
     }
     
-    fileprivate func showAlert(_ title:String, message:String) -> UIAlertController {
+    fileprivate func showSheet(_ title:String, message:String) -> UIAlertController {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .actionSheet)
-        
         self.present(alert, animated: true, completion: nil)
         return alert
     }

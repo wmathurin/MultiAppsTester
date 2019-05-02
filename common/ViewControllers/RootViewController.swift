@@ -119,70 +119,57 @@ class RootViewController: UniversalViewController {
         
         let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
 
+        alert.addAction(UIAlertAction(title: "Clear local data", style: .destructive, handler: { [weak self] (action: UIAlertAction!) in
+            self?.clearLocalData()
+        }))
+        
         alert.addAction(UIAlertAction(title: "Toggle stop when backgrounding", style: .default, handler: { [weak self] (action: UIAlertAction!) in
             if let stopWhenBackgrounding = self?.stopWhenBackgrounding {
                 self?.stopWhenBackgrounding = !stopWhenBackgrounding
             }
-            alert.dismiss(animated: true, completion: nil)
         }))
 
         alert.addAction(UIAlertAction(title: "Show Info", style: .default, handler: { [weak self] (action: UIAlertAction!) in
             self?.showInfo()
-            alert.dismiss(animated: true, completion: nil)
         }))
 
         alert.addAction(UIAlertAction(title: "Refresh local data", style: .default, handler: { [weak self] (action: UIAlertAction!) in
             self?.refreshLocalData()
-            alert.dismiss(animated: true, completion: nil)
         }))
 
         alert.addAction(UIAlertAction(title: "RESUME sync manager", style: .default, handler: { [weak self] (action: UIAlertAction!) in
             self?.syncManagerResume()
-            alert.dismiss(animated: true, completion: nil)
         }))
 
         alert.addAction(UIAlertAction(title: "STOP sync manager", style: .default, handler: { [weak self] (action: UIAlertAction!) in
             self?.syncManagerStop()
-            alert.dismiss(animated: true, completion: nil)
         }))
 
         alert.addAction(UIAlertAction(title: "Sync DOWN", style: .default, handler: { [weak self] (action: UIAlertAction!) in
             self?.runSync("syncDownContacts")
-            alert.dismiss(animated: true, completion: nil)
         }))
 
         alert.addAction(UIAlertAction(title: "Sync UP", style: .default, handler: { [weak self] (action: UIAlertAction!) in
             self?.runSync("syncUpContacts")
-            alert.dismiss(animated: true, completion: nil)
         }))
 
         alert.addAction(UIAlertAction(title: "Clean Ghosts", style: .default, handler: { [weak self] (action: UIAlertAction!) in
             self?.cleanSyncGhosts()
-            alert.dismiss(animated: true, completion: nil)
         }))
 
         alert.addAction(UIAlertAction(title: "Switch user", style: .default, handler: { [weak self] (action: UIAlertAction!) in
             self?.showSwitchUserController()
-            alert.dismiss(animated: true, completion: nil)
         }))
 
         alert.addAction(UIAlertAction(title: "Inspect DB", style: .default, handler: { [weak self] (action: UIAlertAction!) in
             self?.showDBInspector()
-            alert.dismiss(animated: true, completion: nil)
         }))
 
         alert.addAction(UIAlertAction(title: "Logout", style: .destructive, handler: { [weak self] (action: UIAlertAction!) in
             self?.showLogoutActionSheet()
-            alert.dismiss(animated: true, completion: nil)
-        }))
-
-        alert.addAction(UIAlertAction(title: "Clear local data", style: .destructive, handler: { [weak self] (action: UIAlertAction!) in
-            self?.clearLocalData()
-            alert.dismiss(animated: true, completion: nil)
         }))
 
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { [weak self] (action: UIAlertAction!) in
-            alert.dismiss(animated: true, completion: nil)
         }))
 
         self.present(alert, animated: true, completion: nil)
@@ -212,9 +199,7 @@ class RootViewController: UniversalViewController {
             + "syncUpContacts=\(self.infoForSyncState(self.sObjectsDataManager.getSync("syncUpContacts")))"
         
         let alert = self.showAlert("Syncs info", message: message)
-        alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (action: UIAlertAction!) in
-            alert.dismiss(animated: true, completion: nil)
-        }))
+        alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
     }
     
     func clearLocalData() {
@@ -236,7 +221,6 @@ class RootViewController: UniversalViewController {
             alert.message = (alert.message ?? "") + "\n" + (info ?? "")
             if (isLast) {
                 alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { [weak self] (action: UIAlertAction!) in
-                    alert.dismiss(animated: true, completion: nil)
                     self?.refreshList()
                 }))
             }
@@ -245,7 +229,7 @@ class RootViewController: UniversalViewController {
     
     func runSync(_ syncName:String) {
         let alert = self.showAlert("Running \(syncName)", message: "")
-        alert.addAction(UIAlertAction(title: "Stop", style: .default, handler: { [weak self] (action: UIAlertAction!) in
+        alert.addAction(UIAlertAction(title: "Stop", style: .cancel, handler: { [weak self] (action: UIAlertAction!) in
             self?.sObjectsDataManager.stopSyncManager()
             alert.message = (alert.message ?? "" ) + "\nRequesting sync manager stop"
         }))
@@ -262,7 +246,7 @@ class RootViewController: UniversalViewController {
     
     func cleanSyncGhosts() {
         let alert = self.showAlert("Cleaning sync ghosts", message: "")
-        alert.addAction(UIAlertAction(title: "Stop", style: .default, handler: { [weak self] (action: UIAlertAction!) in
+        alert.addAction(UIAlertAction(title: "Stop", style: .cancel, handler: { [weak self] (action: UIAlertAction!) in
             self?.sObjectsDataManager.stopSyncManager()
             alert.message = (alert.message ?? "" ) + "\nRequesting sync manager stop"
         }))
@@ -283,7 +267,7 @@ class RootViewController: UniversalViewController {
     
     func syncManagerResume() {
         let alert = self.showAlert("Resuming sync manager", message:"")
-        alert.addAction(UIAlertAction(title: "Stop", style: .default, handler: { [weak self] (action: UIAlertAction!) in
+        alert.addAction(UIAlertAction(title: "Stop", style: .cancel, handler: { [weak self] (action: UIAlertAction!) in
             self?.sObjectsDataManager.stopSyncManager()
             alert.message = (alert.message ?? "" ) + "\nRequesting sync manager stop"
         }))
@@ -328,7 +312,7 @@ class RootViewController: UniversalViewController {
     }
     
     fileprivate func showAlert(_ title:String, message:String) -> UIAlertController {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .actionSheet)
         
         self.present(alert, animated: true, completion: nil)
         return alert

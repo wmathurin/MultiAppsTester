@@ -1,6 +1,6 @@
 /*
  ViewController.swift
- SmartSyncExplorerSwift
+ MobileSyncExplorerSwift
  
  Created by Raj Rao on 05/16/18.
  
@@ -28,7 +28,7 @@
  */
 import Foundation
 import SmartStore
-import SmartSync
+import MobileSync
 
 
 enum SObjectConstants {
@@ -201,7 +201,7 @@ class SObjectDataFieldSpec  {
 class SObjectDataManager {
 
     //Constants
-    private let kSearchFilterQueueName = "com.salesforce.smartSyncExplorer.searchFilterQueue"
+    private let kSearchFilterQueueName = "com.salesforce.mobileSyncExplorer.searchFilterQueue"
     private let kSyncDownName = "syncDownContacts";
     private let kSyncUpName = "syncUpContacts";
     private let kMaxQueryPageSize: UInt = 10000;
@@ -224,8 +224,8 @@ class SObjectDataManager {
         self.dataSpec = dataSpec
         searchFilterQueue = DispatchQueue(label: kSearchFilterQueueName)
         // Setup store and syncs if needed
-        SmartSyncSDKManager.shared.setupUserStoreFromDefaultConfig()
-        SmartSyncSDKManager.shared.setupUserSyncsFromDefaultConfig()
+        MobileSyncSDKManager.shared.setupUserStoreFromDefaultConfig()
+        MobileSyncSDKManager.shared.setupUserSyncsFromDefaultConfig()
     }
     
     func queryLocalData() throws -> [Any]  {
@@ -272,7 +272,7 @@ class SObjectDataManager {
             do {
                 count = try self.store.count(using:querySpec).intValue
             } catch {
-                SmartSyncLogger.e(SObjectDataManager.self, message: "countContacts \(error)" )
+                MobileSyncLogger.e(SObjectDataManager.self, message: "countContacts \(error)" )
             }
         }
         
@@ -392,7 +392,7 @@ class SObjectDataManager {
             try self.syncMgr.restart(restartStoppedSyncs:false, onUpdate:{ [weak self] (syncState) in
             })
         } catch {
-            SmartSyncLogger.e(SObjectDataManager.self, message: "resumeSyncManagerWithoutRestartingStoppedSyncs failed \(error)" )
+            MobileSyncLogger.e(SObjectDataManager.self, message: "resumeSyncManagerWithoutRestartingStoppedSyncs failed \(error)" )
         }
     }
     
@@ -410,7 +410,7 @@ class SObjectDataManager {
             let objects = try queryLocalData()
             populateDataRows(objects)
         } catch {
-            SmartSyncLogger.e(SObjectDataManager.self, message: "Refresh local data failed \(error)" )
+            MobileSyncLogger.e(SObjectDataManager.self, message: "Refresh local data failed \(error)" )
         }
     }
     
@@ -428,15 +428,15 @@ class SObjectDataManager {
                     self?.populateDataRows(objects)
                     completion(self?.fullDataRowList ?? [])
                 } catch {
-                    SmartSyncLogger.e(SObjectDataManager.self, message: "Resync \(syncState.syncName) failed \(error)" )
+                    MobileSyncLogger.e(SObjectDataManager.self, message: "Resync \(syncState.name) failed \(error)" )
                 }
                 break
             case .stopped:
-                SmartSyncLogger.e(SObjectDataManager.self, message: "Resync \(syncState.syncName) stopped" )
+                MobileSyncLogger.e(SObjectDataManager.self, message: "Resync \(syncState.name) stopped" )
                 onFailure(nil,syncState)
                 break
             case .failed:
-                SmartSyncLogger.e(SObjectDataManager.self, message: "Resync \(syncState.syncName) failed" )
+                MobileSyncLogger.e(SObjectDataManager.self, message: "Resync \(syncState.name) failed" )
                 onFailure(nil,syncState)
                 break
             default:
@@ -464,16 +464,16 @@ class SObjectDataManager {
                         }
                         )
                     } catch let error as NSError {
-                        SmartSyncLogger.e(SObjectDataManager.self, message: "Error with Resync \(error)" )
+                        MobileSyncLogger.e(SObjectDataManager.self, message: "Error with Resync \(error)" )
                         onFailure(error,syncState)
                     }
                     break
                 case .stopped:
-                    SmartSyncLogger.e(SObjectDataManager.self, message: "Resync \(syncState.syncName) stopped" )
+                    MobileSyncLogger.e(SObjectDataManager.self, message: "Resync \(syncState.name) stopped" )
                     onFailure(nil,syncState)
                     break
                 case .failed:
-                    SmartSyncLogger.e(SObjectDataManager.self, message: "Resync \(syncState.syncName) failed" )
+                    MobileSyncLogger.e(SObjectDataManager.self, message: "Resync \(syncState.name) failed" )
                     onFailure(nil,syncState)
                     break
                 default:

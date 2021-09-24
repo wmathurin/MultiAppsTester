@@ -1,4 +1,4 @@
-platform :ios, '11.0'
+platform :ios, '13.0'
 use_frameworks!
 source 'https://github.com/CocoaPods/Specs.git'
 
@@ -9,7 +9,7 @@ def shared_pods
   pod 'SalesforceAnalytics', :path => 'mobile_sdk/SalesforceMobileSDK-iOS'
   pod 'SalesforceSDKCore', :path => 'mobile_sdk/SalesforceMobileSDK-iOS'
   pod 'SmartStore', :path => 'mobile_sdk/SalesforceMobileSDK-iOS'
-  pod 'SmartSync', :path => 'mobile_sdk/SalesforceMobileSDK-iOS'
+  pod 'MobileSync', :path => 'mobile_sdk/SalesforceMobileSDK-iOS'
 end
 
 target 'MultiAppsTester1' do

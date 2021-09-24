@@ -26,7 +26,7 @@ import Foundation
 import UIKit
 import SalesforceSDKCommon
 import SalesforceSDKCore
-import SmartSync
+import MobileSync
 
 class AppDelegate : UIResponder, UIApplicationDelegate
 {
@@ -38,7 +38,7 @@ class AppDelegate : UIResponder, UIApplicationDelegate
         super.init()
         DataSharingHelper.shared.appGroupName = "group.com.salesforce.mobilesdk.multiappstester.shared"
         DataSharingHelper.shared.isAppGroupEnabled = true
-        SmartSyncSDKManager.initializeSDK()
+        MobileSyncSDKManager.initializeSDK()
         AuthHelper.registerBlock(forCurrentUserChangeNotifications: { [weak self] in
             self?.resetViewState {
                 self?.setupRootViewController()
